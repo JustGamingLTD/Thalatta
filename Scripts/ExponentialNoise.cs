@@ -67,6 +67,7 @@ namespace Thalatta.NoiseAlgorithems
             return noise;
         }
 
+        
 
         public float Turbulence(int x, int y)
         {

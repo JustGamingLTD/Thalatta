@@ -84,6 +84,9 @@ namespace Thalatta
                 case NoiseTypes.Hybrid:
                     terrainData.SetHeights(0, 0, GenerateHeightsHybrid());
                     break;
+                case NoiseTypes.Fractal:
+                    terrainData.SetHeights(0, 0, GenerateHeightsFractal());
+                    break;
             }
 
 
@@ -152,6 +155,28 @@ namespace Thalatta
             return heights;
         }
 
+        float[,] GenerateHeightsFractal()
+        {
+            perlinNoise.noiseOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
+
+            perlinNoise.octaves = octaves;
+            perlinNoise.cover = cover;
+            perlinNoise.sharpness = sharpness;
+            perlinNoise.powerFactor = powerFactor;
+
+            float[,] heights = new float[size, size];
+            for (int x = 0; x < size; x++)
+            {
+                for (int y = 0; y < size; y++)
+                {
+
+                    heights[x, y] = perlinNoise.FractalPerlin(x, y);
+                }
+            }
+
+            return heights;
+        }
+
         float[,] GenerateHeightsHybrid()
         {
             perlinNoise.noiseOffset = new Vector2(Random.Range(0f, 10f), Random.Range(0f, 10f));
@@ -167,7 +192,7 @@ namespace Thalatta
                 for (int y = 0; y < size; y++)
                 {
 
-                    heights[x, y] = perlinNoise.Exponential(x, y) + perlinNoise.Turbulence(x, y) * 0.2f;
+                    heights[x, y] = perlinNoise.Exponential(x, y) + ((perlinNoise.FractalPerlin(x, y) * 0.7f) - .2f);
                 }
             }
 
@@ -181,7 +206,8 @@ namespace Thalatta
         DiamondSquare,
         ExponentialPerlinNoise,
         Turbulence,
-        Hybrid
+        Fractal,
+        Hybrid,
     }
 
 }
