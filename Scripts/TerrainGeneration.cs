@@ -28,6 +28,8 @@ namespace Thalatta
 
         NoiseAlgorithems.Perlin perlinNoise;
 
+        Erosion.HydraulicErosion HydraulicErosion;
+
         float[,,] alphaData;
 
 
@@ -35,13 +37,11 @@ namespace Thalatta
         {
             diamondSquare = new NoiseAlgorithems.DiamondSquare(size, scale, 1);
             perlinNoise = new NoiseAlgorithems.Perlin();
-            //perlinNoise.textureSize = size;
             terrain = GetComponent<Terrain>();
             tData = terrain.terrainData;
             tData = GenerateTerrain(terrain.terrainData);
             SetAlphaMaps();
-
-            new HydraulicErosion(tData);
+            HydraulicErosion = new Erosion.HydraulicErosion(tData);
         }
 
         public void SetAlphaMaps()
