@@ -170,7 +170,7 @@ namespace Thalatta
                 for (int y = 0; y < size; y++)
                 {
 
-                    heights[x, y] = perlinNoise.FractalPerlin(x, y);
+                    heights[x, y] = perlinNoise.FractalPerlin(x, y) -.2f;
                 }
             }
 

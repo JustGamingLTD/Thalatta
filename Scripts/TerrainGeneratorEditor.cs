@@ -13,9 +13,8 @@ namespace Thalatta
 
             EditorGUILayout.LabelField("Basic Properties", EditorStyles.boldLabel);
             myTarget.depth = EditorGUILayout.IntField("Depth", myTarget.depth);
-            myTarget.scale = EditorGUILayout.FloatField("Scale", myTarget.scale);
-            //myTarget.seed = EditorGUILayout.DoubleField("Seed", myTarget.seed);
             myTarget.size = EditorGUILayout.IntField("Size", myTarget.size);
+            //myTarget.seed = EditorGUILayout.DoubleField("Seed", myTarget.seed);
             EditorGUILayout.Space();
 
             EditorGUILayout.LabelField("Noise Type", EditorStyles.boldLabel);
@@ -23,7 +22,12 @@ namespace Thalatta
 
             EditorGUILayout.Space();
 
+            if(myTarget.noiseType == NoiseTypes.DiamondSquare)
+            {
+                EditorGUILayout.LabelField("Diamond Square Properties", EditorStyles.boldLabel);
+                myTarget.scale = EditorGUILayout.FloatField("Roughness", myTarget.scale);
 
+            }
             if (myTarget.noiseType == NoiseTypes.ExponentialPerlinNoise || myTarget.noiseType == NoiseTypes.Hybrid)
             {
                 EditorGUILayout.LabelField("Exponential Perlin Noise Properties", EditorStyles.boldLabel);
