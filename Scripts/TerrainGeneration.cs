@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 
 namespace Thalatta
@@ -33,15 +34,25 @@ namespace Thalatta
 
         public void Generate()
         {
+            EditorUtility.DisplayProgressBar("Generating Terrain", "Preparing", .1f);
+
             diamondSquare = new NoiseAlgorithems.DiamondSquare(size, scale, 1);
             perlinNoise = new NoiseAlgorithems.Perlin();
             //perlinNoise.textureSize = size;
             terrain = GetComponent<Terrain>();
             tData = terrain.terrainData;
+            EditorUtility.DisplayProgressBar("Generating Terrain", "Generating Noise Maps", .3f);
             tData = GenerateTerrain(terrain.terrainData);
+
+            EditorUtility.DisplayProgressBar("Generating Terrain", "Applying Erosion", .5f);
+            new HydraulicErosion(tData);
+
+            EditorUtility.DisplayProgressBar("Generating Terrain", "Texturing Terrain", .8f);
+
             SetAlphaMaps();
 
-            new HydraulicErosion(tData);
+            EditorUtility.ClearProgressBar();
+
         }
 
         public void SetAlphaMaps()
