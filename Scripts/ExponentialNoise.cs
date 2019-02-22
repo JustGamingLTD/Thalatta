@@ -21,7 +21,6 @@ namespace Thalatta.NoiseAlgorithems
         public bool useInspectorColours = false;
 
 
-
         public float BasicPerlin(int x, int y)
         {
             float noise = 0;
@@ -35,7 +34,7 @@ namespace Thalatta.NoiseAlgorithems
         }
 
 
-        public float FractalPerlin(int x, int y)
+        public float FractalPerlin(float x, float y)
         {
             float nX, nY;
             float noise = .1f;
@@ -47,25 +46,31 @@ namespace Thalatta.NoiseAlgorithems
                 nX = (((float)x / (float)textureSize) + noiseOffset.x) * frequency * gain; 
                 nY = (((float)y / (float)textureSize) + noiseOffset.y) * frequency * gain;
 
-                noise += Mathf.PerlinNoise(nX, nY) * (1f / gain); 
+                noise += Mathf.PerlinNoise(nX, nY) * (1f / gain);
+
 
                 factor += (1f / gain); 
 
                 gain *= 2f; 
             }
 
-            noise /= factor; 
-
+            noise /= factor;
+            /*
+            noise *= 10;
+            noise = Mathf.Pow(noise, 2);
+            noise /= 50;
+            */
             return noise;
         }
 
         public float Exponential(int x, int y)
         {
-            float noise = FractalPerlin(x, y);
-            noise = ExponentialFilter(noise);
+            float noise = FractalPerlin(x*.2f, y*.2f);
+            noise = ExponentialFilter(noise)*1.4f;
 
             return noise;
         }
+
 
         
 
@@ -89,6 +94,8 @@ namespace Thalatta.NoiseAlgorithems
             }
 
             noise /= factor;
+
+
 
             return noise;
         }

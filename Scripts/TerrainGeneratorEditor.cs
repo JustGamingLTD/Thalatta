@@ -28,6 +28,11 @@ namespace Thalatta
                 myTarget.scale = EditorGUILayout.FloatField("Roughness", myTarget.scale);
 
             }
+            if(myTarget.noiseType == NoiseTypes.Fractal)
+            {
+                EditorGUILayout.LabelField("Fractal Noise Properties", EditorStyles.boldLabel);
+
+            }
             if (myTarget.noiseType == NoiseTypes.ExponentialPerlinNoise || myTarget.noiseType == NoiseTypes.Hybrid)
             {
                 EditorGUILayout.LabelField("Exponential Perlin Noise Properties", EditorStyles.boldLabel);

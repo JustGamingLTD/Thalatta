@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
-
+using System.Linq;
 
 namespace Thalatta
 {
@@ -23,11 +23,13 @@ namespace Thalatta
         public float powerFactor = 0.95f;
 
 
+
         Terrain terrain;
         TerrainData tData;
         NoiseAlgorithems.DiamondSquare diamondSquare;
-
         NoiseAlgorithems.Perlin perlinNoise;
+
+        float unit;
 
         float[,,] alphaData;
 
@@ -45,7 +47,9 @@ namespace Thalatta
             tData = GenerateTerrain(terrain.terrainData);
 
             EditorUtility.DisplayProgressBar("Generating Terrain", "Applying Erosion", .5f);
-            new HydraulicErosion(tData);
+            //new HydraulicErosion(tData);
+
+            unit = 1f / (tData.size.x - 1);
 
             EditorUtility.DisplayProgressBar("Generating Terrain", "Texturing Terrain", .8f);
 
@@ -57,28 +61,93 @@ namespace Thalatta
 
         public void SetAlphaMaps()
         {
-            alphaData = tData.GetAlphamaps(0, 0, tData.alphamapWidth, tData.alphamapWidth);
+            // Splatmap data is stored internally as a 3d array of floats, so declare a new empty array ready for your custom splatmap data:
+            float[,,] splatmapData = new float[tData.alphamapWidth, tData.alphamapHeight, tData.alphamapLayers];
 
-            Debug.Log("Setting alpha mpas");
-
-            float[,] heights = tData.GetHeights(0, 0, size, size);
-
-            for(int y = 0; y<tData.alphamapHeight; y++)
+            for (int y = 0; y < tData.alphamapHeight; y++)
             {
                 for (int x = 0; x < tData.alphamapWidth; x++)
                 {
-                    float percentage = heights[x, y] * 2;
-                    alphaData[x, y, 0] = percentage;
-                    alphaData[x, y, 1] = 1 - percentage;
+                    // Normalise x/y coordinates to range 0-1 
+                    float y_01 = (float)y / (float)tData.alphamapHeight;
+                    float x_01 = (float)x / (float)tData.alphamapWidth;
+
+                    // Setup an array to record the mix of texture weights at this point
+                    float[] splatWeights = new float[tData.alphamapLayers];
+
+                    // get height and slope at corresponding point
+                    float height = GetHeightAtPoint(x_01 * tData.size.x, y_01 * tData.size.z);
+                    float slope = GetSlopeAtPoint(x_01 * tData.size.x, y_01 * tData.size.z);
+
+                    //====Rules for applying different textures===========================
+                    //splatWeights[0] = 1 - slope; // decreases with slope (ground texture)
+
+                    splatWeights[1] = slope; // increases with slope (rocky texture)
+
+                    splatWeights[0] = (
+                        slope < .1f &&
+                        height > 0.3f * tData.size.y
+                        && height < 0.5f * tData.size.y
+                        )
+                        ? 0f : 0;
+
+
+
+                    splatWeights[2] = ( // apply 75% only to "Mesa" uplands (NOTE: the first two textures sum 1, so 1.5 corresponds to 80%)
+                    height > 0.5f * tData.size.y) // plain terrain
+                        ? 1.5f : 0f;
+
+                    splatWeights[3] = ( // apply 50% only to valley floor (NOTE: textures 2 and 3 never coexist, so 1 corresponds to 50%))
+                        height < 0.3f * tData.size.y && // lower terrain
+                        slope < 0.3f) // plain terrain
+                        ? 1f : 0f;
+
+    
+
+
+                    //====================================================================
+
+                    // Sum of all textures weights must add to 1, so calculate normalization factor from sum of weights
+                    float z = splatWeights.Sum();
+
+                    // Loop through each terrain texture
+                    for (int i = 0; i < tData.alphamapLayers; i++)
+                    {
+
+                        // Normalize so that sum of all texture weights = 1
+                        splatWeights[i] /= z;
+
+                        // Assign this point to the splatmap array
+                        splatmapData[y, x, i] = splatWeights[i];
+                        // NOTE: Alpha map array dimensions are shifted in relation to heightmap and world space (y is x and x is y or z)
+                    }
                 }
             }
 
-            tData.SetAlphamaps(0, 0, alphaData);
+            // Finally assign the new splatmap to the terrainData:
+            tData.SetAlphamaps(0, 0, splatmapData);
+        }
+
+        float GetSlopeAtPoint(float pointX, float pointZ, bool scaleToRatio = true)
+        {
+            float factor = (scaleToRatio) ? 90f : 1f;
+            return tData.GetSteepness(unit * pointX, unit * pointZ) / 90f; // x and z coordinates must be scaled
+        }
+
+        float GetHeightAtPoint(float pointX, float pointZ, bool scaleToTerrain = false)
+        {
+            float height = tData.GetInterpolatedHeight(unit * pointX, unit * pointZ);
+
+            // x and z coordinates must be scaled with "unit"
+            if (scaleToTerrain)
+                return height / tData.size.y;
+            else
+                return height;
         }
 
         TerrainData GenerateTerrain(TerrainData terrainData)
         {
-            terrainData.size = new Vector3(size, depth, size);
+            //terrainData.size = new Vector3(size, depth, size);
 
             switch (noiseType)
             {
@@ -181,7 +250,8 @@ namespace Thalatta
                 for (int y = 0; y < size; y++)
                 {
 
-                    heights[x, y] = perlinNoise.FractalPerlin(x, y) -.2f;
+                    heights[x, y] = perlinNoise.FractalPerlin(x, y) - .2f;
+
                 }
             }
 
@@ -203,7 +273,7 @@ namespace Thalatta
                 for (int y = 0; y < size; y++)
                 {
 
-                    heights[x, y] = perlinNoise.Exponential(x, y) + ((perlinNoise.FractalPerlin(x, y) * 0.7f) - .2f);
+                    heights[x, y] = perlinNoise.Exponential(x, y) + ((perlinNoise.FractalPerlin(x, y) * 0.3f));
                 }
             }
 
