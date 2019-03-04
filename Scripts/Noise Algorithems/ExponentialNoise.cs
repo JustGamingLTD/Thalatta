@@ -65,7 +65,7 @@ namespace Thalatta.NoiseAlgorithems
 
         public float Exponential(int x, int y)
         {
-            float noise = FractalPerlin(x*.2f, y*.2f);
+            float noise = FractalPerlin(x*.4f, y*.4f);
             noise = ExponentialFilter(noise)*1.4f;
 
             return noise;

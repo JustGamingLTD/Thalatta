@@ -47,16 +47,30 @@ namespace Thalatta
             tData = GenerateTerrain(terrain.terrainData);
 
             EditorUtility.DisplayProgressBar("Generating Terrain", "Applying Erosion", .5f);
-            //new HydraulicErosion(tData);
 
-            unit = 1f / (tData.size.x - 1);
+            ApplyErosion();
 
             EditorUtility.DisplayProgressBar("Generating Terrain", "Texturing Terrain", .8f);
 
+            unit = 1f / (tData.size.x - 1);
             SetAlphaMaps();
 
             EditorUtility.ClearProgressBar();
 
+        }
+
+        public void ApplyErosion()
+        {
+            float[,] heights = tData.GetHeights(0, 0, size, size);
+            float[] heights1D = Erosion.ErosionHelper.twoDtooneD(heights);
+
+            Erosion.Erosion erosion = new Erosion.Erosion();
+
+            erosion.Erode(heights1D, size, 1120000, true);
+
+            heights = Erosion.ErosionHelper.oneDtotwoD(heights1D);
+
+            tData.SetHeights(0, 0, heights);
         }
 
         public void SetAlphaMaps()
