@@ -1,5 +1,12 @@
 ﻿using UnityEngine;
 
+/*
+Credit for this script for Sebastian Lague 
+https://www.youtube.com/user/Cercopithecan
+from this video
+https://www.youtube.com/watch?v=eaXk97ujbPQ
+*/
+
 namespace Thalatta.Erosion
 {
     public class Erosion
