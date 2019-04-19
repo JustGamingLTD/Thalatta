@@ -22,7 +22,11 @@ namespace Thalatta
         public float sharpness = 0.95f;
         public float powerFactor = 0.95f;
 
+        public int dropletsPerUnit = 1;
 
+        public bool generateTerrain = true;
+        public bool applyErosion = true;
+        public bool textureTerrain = true;
 
         Terrain terrain;
         TerrainData tData;
@@ -44,16 +48,23 @@ namespace Thalatta
             terrain = GetComponent<Terrain>();
             tData = terrain.terrainData;
             EditorUtility.DisplayProgressBar("Generating Terrain", "Generating Noise Maps", .3f);
-            tData = GenerateTerrain(terrain.terrainData);
 
-            EditorUtility.DisplayProgressBar("Generating Terrain", "Applying Erosion", .5f);
+            if(generateTerrain)
+                tData = GenerateTerrain(terrain.terrainData);
 
-            ApplyErosion();
+            EditorUtility.DisplayProgressBar("Generating Terrain", "Texturing Terrain", .5f);
 
-            EditorUtility.DisplayProgressBar("Generating Terrain", "Texturing Terrain", .8f);
-
+            
             unit = 1f / (tData.size.x - 1);
-            SetAlphaMaps();
+            if(textureTerrain)
+                SetAlphaMaps();
+
+            EditorUtility.DisplayProgressBar("Generating Terrain", "Applying Erosion", .7f);
+
+            if(applyErosion)
+                ApplyErosion();
+
+            
 
             EditorUtility.ClearProgressBar();
 
@@ -63,10 +74,11 @@ namespace Thalatta
         {
             float[,] heights = tData.GetHeights(0, 0, size, size);
             float[] heights1D = Erosion.ErosionHelper.twoDtooneD(heights);
-
             Erosion.Erosion erosion = new Erosion.Erosion();
 
-            erosion.Erode(heights1D, size, 1120000, true);
+            int dropletCount = heights1D.Length * dropletsPerUnit;
+
+            erosion.Erode(heights1D, size, dropletCount, true);
 
             heights = Erosion.ErosionHelper.oneDtotwoD(heights1D);
 

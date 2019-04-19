@@ -404,6 +404,10 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 4000
       objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 780611a67e8e941a2b3aa96e5915a793, type: 3}
+      propertyPath: waterMode
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 780611a67e8e941a2b3aa96e5915a793, type: 3}
 --- !u!1 &1937322400
@@ -507,3 +511,7 @@ MonoBehaviour:
   cover: 0.45
   sharpness: 0.99
   powerFactor: 1
+  dropletsPerUnit: 2
+  generateTerrain: 0
+  applyErosion: 1
+  textureTerrain: 0
