@@ -5,7 +5,7 @@ An open-source terrain generation suite.
 After discovering there are no full open-source terrain generation programs, I started making one myself. It works with the Unity engine, and is incredibly easy to use.
 
 ## State
-Thalatta can currently generate reasonable looking terrains, but mountians don't work properly yet. I'm currently looking into implementing an erosion algorithm.
+Thalatta can currently generate reasonable looking terrains. There are no advanced features like grass generation or town generation (yet).
 
 ## Contributing
 Please feel free to contribute, I would love it if you helped out the gamedev community! If you would like to become a contributer, just create an issue, and I will add you.
