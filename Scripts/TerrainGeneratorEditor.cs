@@ -64,6 +64,14 @@ namespace Thalatta
             EditorGUILayout.LabelField("Texture Properties", EditorStyles.boldLabel);
             myTarget.textureTerrain = EditorGUILayout.ToggleLeft("Texture Terrain", myTarget.textureTerrain);
 
+            myTarget.addTrees = EditorGUILayout.ToggleLeft("Add Trees", myTarget.addTrees);
+            if (myTarget.addTrees)
+            {
+                EditorGUILayout.LabelField("Tree Spawn Percentage");
+                myTarget.treePercentage = EditorGUILayout.Slider(myTarget.treePercentage, 0, 1);
+            }
+                
+
             bool pressed = EditorGUILayout.DropdownButton(new UnityEngine.GUIContent("Generate"), UnityEngine.FocusType.Keyboard);
 
             if (pressed)

@@ -1,6 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Thalatta
 {
@@ -24,9 +25,12 @@ namespace Thalatta
 
         public int dropletsPerUnit = 1;
 
+        public float treePercentage = 0.01f;
+
         public bool generateTerrain = true;
         public bool applyErosion = true;
         public bool textureTerrain = true;
+        public bool addTrees = true;
 
         Terrain terrain;
         TerrainData tData;
@@ -40,13 +44,14 @@ namespace Thalatta
 
         public void Generate()
         {
+            terrain = GetComponent<Terrain>();
+            tData = terrain.terrainData;
             EditorUtility.DisplayProgressBar("Generating Terrain", "Preparing", .1f);
 
             diamondSquare = new NoiseAlgorithems.DiamondSquare(size, scale, 1);
             perlinNoise = new NoiseAlgorithems.Perlin();
             //perlinNoise.textureSize = size;
-            terrain = GetComponent<Terrain>();
-            tData = terrain.terrainData;
+            
             EditorUtility.DisplayProgressBar("Generating Terrain", "Generating Noise Maps", .3f);
 
             if(generateTerrain)
@@ -64,7 +69,9 @@ namespace Thalatta
             if(applyErosion)
                 ApplyErosion();
 
-            
+            if(addTrees)
+                AddTrees();
+
 
             EditorUtility.ClearProgressBar();
 
@@ -153,6 +160,28 @@ namespace Thalatta
             // Finally assign the new splatmap to the terrainData:
             tData.SetAlphamaps(0, 0, splatmapData);
         }
+
+        public void AddTrees()
+        {
+            List<TreeInstance> instances = new List<TreeInstance>();
+
+            for (float x = 0; x < size; x++)
+            {
+                for (float y = 0; y < size; y++)
+                {
+                    if (tData.GetSteepness(x/size, y/size) < 1 && tData.GetHeight(Mathf.RoundToInt(x), Mathf.RoundToInt(y)) > 5 && tData.GetHeight(Mathf.RoundToInt(x), Mathf.RoundToInt(y)) < 40)
+                    {
+                        if(Random.Range(0f, 1f) < treePercentage)
+                            if(perlinNoise.BasicPerlin(x / 5, y / 5) < 0.4f)
+                                instances.Add(new TreeInstance() { position = new Vector3(x/size, 0, y/size), prototypeIndex = 0, color = Color.white, heightScale = 1, lightmapColor = Color.white, rotation = 0, widthScale = 1 });
+                    }
+
+                }
+            }
+            tData.SetTreeInstances(instances.ToArray(), true);
+            terrain.Flush();
+        }
+
 
         float GetSlopeAtPoint(float pointX, float pointZ, bool scaleToRatio = true)
         {

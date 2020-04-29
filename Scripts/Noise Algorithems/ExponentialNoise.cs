@@ -8,7 +8,7 @@ namespace Thalatta.NoiseAlgorithems
     {
         public float frequency = 1f;
         public int octaves = 16;
-        public Vector2 noiseOffset = new Vector2(3.141592f, 3);
+        public Vector2 noiseOffset = new Vector2(4.141592f, 3);
 
         public float cover = 0.65f;
         public float sharpness = 0.95f;
@@ -20,6 +20,11 @@ namespace Thalatta.NoiseAlgorithems
         public bool useGreyscale = false;
         public bool useInspectorColours = false;
 
+        public Perlin()
+        {
+            noiseOffset = new Vector2(Random.Range(0f, 100f), Random.Range(0, 100f));
+
+        }
 
         public float BasicPerlin(float x, float y)
         {
@@ -36,6 +41,7 @@ namespace Thalatta.NoiseAlgorithems
 
         public float FractalPerlin(float x, float y)
         {
+
             float nX, nY;
             float noise = .1f;
             float gain = 1f;
