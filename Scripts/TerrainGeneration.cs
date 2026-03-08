@@ -178,7 +178,11 @@ namespace Thalatta
 
                 }
             }
-            tData.SetTreeInstances(instances.ToArray(), true);
+
+            foreach(TreeInstance instance in instances)
+            {
+                tData.SetTreeInstance(tData.treeInstanceCount, instance);
+            }
             terrain.Flush();
         }
 
